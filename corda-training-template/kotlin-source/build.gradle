@@ -22,8 +22,8 @@ cordapp {
     targetPlatformVersion 4
     minimumPlatformVersion 3
     contract {
-        name "Corda Training Material"
-        vendor "R3"
+        name "Communication Nodes cordapp"
+        vendor "SE"
         licence "Contact R3 for Kotlin Source Contract License."
         versionId 1
     }

@@ -146,7 +146,11 @@ http://localhost:10007/api/iou/send-node-info?party=C=US,L=New%20York,O=Particip
 
 flow start ExampleFlow$Initiator iouValue: 50, otherParty: "O=PartyB,L=New York,C=US"
 
-flow start net.corda.training.flow iouValue: 50, otherParty: "O=PartyB,L=New York,C=US"
+flow start net.corda.training.flow.SelfIssueCashFlow   amount: 50, currency: "USD"
+
+
+flow start net.corda.training.flow.IOUIssueFlow   amount: 50, currency: "USD" , otherParty: "O=PartyB,L=New York,C=US"
+
 
 
 

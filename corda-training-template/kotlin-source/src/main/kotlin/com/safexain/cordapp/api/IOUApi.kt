@@ -1,30 +1,25 @@
 package com.safexain.cordapp.api
 
-import net.corda.core.contracts.Amount
+
+import com.safexain.cordapp.flow.NodeInfoContainerFlow
+
+import com.safexain.cordapp.state.IOUState
+import com.safexain.cordapp.state.NodeInfoState
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.internal.toX500Name
 import net.corda.core.messaging.CordaRPCOps
-import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.NodeInfo
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.utilities.loggerFor
 import net.corda.finance.contracts.asset.Cash
 import net.corda.finance.workflows.getCashBalances
-import com.safexain.cordapp.flow.IOUSettleFlow
-import com.safexain.cordapp.flow.IOUTransferFlow
-import com.safexain.cordapp.flow.SelfIssueCashFlow
-import com.safexain.cordapp.state.IOUState
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x500.style.BCStyle
 import org.slf4j.Logger
-import java.util.Currency
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
@@ -93,6 +88,56 @@ class IOUApi(val rpcOps: CordaRPCOps) {
         return rpcOps.vaultQueryBy<Cash.State>().states
     }
 
+
+    /**
+     * Task 1
+     * Displays all cars states that exist in the node's vault.
+     * TODO: Return a list of IOUStates on ledger
+     * Hint - Use [rpcOps] to query the vault all unconsumed [CarState]s
+     */
+    @GET
+    @Path("infos")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun geInfos(): List<StateAndRef<ContractState>> {
+        println("===  cars === ");
+        // Filter by state type: IOU.
+
+        var pageNum  = 0
+        var pageSize  = 10
+        var pageSpec  = PageSpecification(pageNum ,pageSize)
+        return rpcOps.vaultQueryBy<NodeInfoState>().states
+    }
+
+
+    //TODO
+    @PUT
+    @Path("{buyer}/{amount}/{currency}/issue-car")
+    fun issueCar(message: String,
+                 @QueryParam(value = "target") party: String): Response {
+
+        rpcOps.wellKnownPartyFromX500Name(CordaX500Name.parse(party)) ?:
+        throw IllegalArgumentException("Unknown party name.")
+        try {
+
+            val result = rpcOps.startFlowDynamic(NodeInfoContainerFlow::class.java
+                    ,message
+                    , party
+            ).returnValue.get()
+
+            // Return the response.
+            return Response
+                    .status(Response.Status.CREATED)
+                    .entity("Transaction id ${result.id} committed to ledger.\n${result.tx.outputs.single()}")
+                    .build()
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (e: Exception) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(e.message)
+                    .build()
+        }
+    }
+
     /**
      * Displays all cash states that exist in the node's vault.
      */
@@ -135,67 +180,67 @@ class IOUApi(val rpcOps: CordaRPCOps) {
     /**
      * Transfers an IOU specified by [linearId] to a new party.
      */
-    @GET
-    @Path("transfer-iou")
-    fun transferIOU(@QueryParam(value = "id") id: String,
-                    @QueryParam(value = "party") party: String): Response {
-        val linearId = UniqueIdentifier.fromString(id)
-        val newLender = rpcOps.wellKnownPartyFromX500Name(CordaX500Name.parse(party)) ?: throw IllegalArgumentException("Unknown party name.")
-        try {
-            rpcOps.startFlow(::IOUTransferFlow, linearId, newLender).returnValue.get()
-            return Response.status(Response.Status.CREATED).entity("IOU $id transferred to $party.").build()
-
-        } catch (e: Exception) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(e.message)
-                    .build()
-        }
-    }
+//    @GET
+//    @Path("transfer-iou")
+//    fun transferIOU(@QueryParam(value = "id") id: String,
+//                    @QueryParam(value = "party") party: String): Response {
+//        val linearId = UniqueIdentifier.fromString(id)
+//        val newLender = rpcOps.wellKnownPartyFromX500Name(CordaX500Name.parse(party)) ?: throw IllegalArgumentException("Unknown party name.")
+//        try {
+//            rpcOps.startFlow(::IOUTransferFlow, linearId, newLender).returnValue.get()
+//            return Response.status(Response.Status.CREATED).entity("IOU $id transferred to $party.").build()
+//
+//        } catch (e: Exception) {
+//            return Response
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .entity(e.message)
+//                    .build()
+//        }
+//    }
 
     /**
      * Settles an IOU. Requires cash in the right currency to be able to settle.
      * Example request:
      * curl -X PUT 'http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=New%20York,C=US
      */
-    @GET
-    @Path("settle-iou")
-    fun settleIOU(@QueryParam(value = "id") id: String,
-                  @QueryParam(value = "amount") amount: Int,
-                  @QueryParam(value = "currency") currency: String): Response {
-        val linearId = UniqueIdentifier.fromString(id)
-        val settleAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
-
-        try {
-            rpcOps.startFlow(::IOUSettleFlow, linearId, settleAmount).returnValue.get()
-            return Response.status(Response.Status.CREATED).entity("$amount $currency paid off on IOU id $id.").build()
-
-        } catch (e: Exception) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(e.message)
-                    .build()
-        }
-    }
+//    @GET
+//    @Path("settle-iou")
+//    fun settleIOU(@QueryParam(value = "id") id: String,
+//                  @QueryParam(value = "amount") amount: Int,
+//                  @QueryParam(value = "currency") currency: String): Response {
+//        val linearId = UniqueIdentifier.fromString(id)
+//        val settleAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
+//
+//        try {
+//            rpcOps.startFlow(::IOUSettleFlow, linearId, settleAmount).returnValue.get()
+//            return Response.status(Response.Status.CREATED).entity("$amount $currency paid off on IOU id $id.").build()
+//
+//        } catch (e: Exception) {
+//            return Response
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .entity(e.message)
+//                    .build()
+//        }
+//    }
 
     /**
      * Helper end-point to issue some cash to ourselves.
      */
-    @GET
-    @Path("self-issue-cash")
-    fun selfIssueCash(@QueryParam(value = "amount") amount: Int,
-                      @QueryParam(value = "currency") currency: String): Response {
-        val issueAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
-
-        try {
-            val cashState = rpcOps.startFlow(::SelfIssueCashFlow, issueAmount).returnValue.get()
-            return Response.status(Response.Status.CREATED).entity(cashState.toString()).build()
-
-        } catch (e: Exception) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(e.message)
-                    .build()
-        }
-    }
+//    @GET
+//    @Path("self-issue-cash")
+//    fun selfIssueCash(@QueryParam(value = "amount") amount: Int,
+//                      @QueryParam(value = "currency") currency: String): Response {
+//        val issueAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
+//
+//        try {
+//            val cashState = rpcOps.startFlow(::SelfIssueCashFlow, issueAmount).returnValue.get()
+//            return Response.status(Response.Status.CREATED).entity(cashState.toString()).build()
+//
+//        } catch (e: Exception) {
+//            return Response
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .entity(e.message)
+//                    .build()
+//        }
+//    }
 }

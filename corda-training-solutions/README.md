@@ -126,3 +126,31 @@ When running the flow tests, if you get a Quasar instrumention error then add:
 ```-ea -javaagent:lib/quasar.jar```
 
 to the VM args property in the default run configuration for JUnit in IntelliJ.
+
+http://localhost:10007/api/iou/issue-iou?amount=1000000&currency=usd&party=C=US,L=New%20York,O=ParticipantB
+
+
+http://localhost:10007/api/iou/issue-iou?amount=1&currency=USD&party=C=US,L=New%20York,O=ParticipantB
+
+Debug: web Api 
+
+1. Run net.corda.training main ()
+2. create remote debugging on port 5009
+http://localhost:10007/api/iou/send-node-info?party=C=US,L=New%20York,O=ParticipantB
+
+{
+	
+	"message":"e",
+	"test" :"dd"
+}
+
+flow start ExampleFlow$Initiator iouValue: 50, otherParty: "O=PartyB,L=New York,C=US"
+
+flow start net.corda.training.flow iouValue: 50, otherParty: "O=PartyB,L=New York,C=US"
+
+
+
+
+SelfIssueCashFlow
+
+run vaultQuery contractStateType: net.corda.training.state.IOUState

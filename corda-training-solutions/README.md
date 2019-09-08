@@ -59,9 +59,9 @@ Flow:
 
 The code in the following files was already added for you:
 
-* `kotlin-source/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt`
+* `kotlin-source/src/main/kotlin/net/corda/training/plugin/NodeSharingPlugin.kt`
 * `kotlin-source/src/test/kotlin/net/corda/training/Main.kt`
-* `kotling-source/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt`
+* `kotling-source/src/main/kotlin/net/corda/training/plugin/NodeSharingPlugin.kt`
 * `kotling-source/src/main/java/kotlin/corda/training/flow/SelfIssueCashFlow.kt`
 
 

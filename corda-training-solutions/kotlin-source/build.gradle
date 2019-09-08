@@ -22,14 +22,12 @@ cordapp {
     targetPlatformVersion 4
     minimumPlatformVersion 3
     contract {
-        name "Corda Training Material"
-        vendor "R3"
+        name "Corda  Material"
         licence "Contact R3 for Kotlin Source Contract License."
         versionId 1
     }
     workflow {
-        name "Corda Training Material"
-        vendor "R3"
+        name "Corda  Material"
         licence "Contact R3 for Kotlin Source Workflow License."
         versionId 1
     }
@@ -46,6 +44,11 @@ sourceSets {
             srcDir "../config/test"
         }
     }
+}
+
+jar {
+    baseName = 'node-sharing-cordap'
+    version =  '1.0.0'
 }
 
 dependencies {

@@ -8,6 +8,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import com.safexain.nodesharing.contract.NodeShareContract.Companion.NODE_INFO_CONTRACT_ID
+import com.safexain.nodesharing.model.StatusEnum
 import java.time.Instant
 
 
@@ -20,7 +21,8 @@ class CordapShareFlow(val party: String,
                       var frontGitUrl: String = "url",
                       var sharingPartyIds: MutableList<String> = emptyList<String>().toMutableList(),
                       var image: ByteArray? = null,
-                      var status: String = com.safexain.nodesharing.model.StatusEnum.ACTIVE.toString(),
+                     // var status: String = com.safexain.nodesharing.model.StatusEnum.ACTIVE.toString(),
+                      var status :String,
                       var isEditable: Boolean = false
 ) : FlowLogic<SignedTransaction>() {
 
@@ -63,6 +65,12 @@ class CordapShareFlow(val party: String,
 
         // Stage 1.
         progressTracker.currentStep = com.safexain.nodesharing.flow.CordapShareFlow.Companion.GENERATING_TRANSACTION
+        var defaultSatus = StatusEnum.DISABLED
+        var statusItem = StatusEnum.valueOf(status)
+
+        if(statusItem != null){
+            defaultSatus = statusItem
+        }
 
         val cordapShareContainer = com.safexain.nodesharing.model.CordappShareContainer(
                 fileId,
@@ -72,7 +80,7 @@ class CordapShareFlow(val party: String,
                 sharingPartyIds,
                 Instant.now(),
                 image,
-                status,
+                defaultSatus.toString(),
                 isEditable
         )
 

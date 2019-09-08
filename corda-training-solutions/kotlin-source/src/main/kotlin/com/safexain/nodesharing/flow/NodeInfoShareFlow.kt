@@ -8,6 +8,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import com.safexain.nodesharing.contract.NodeShareContract.Companion.NODE_INFO_CONTRACT_ID
+import com.safexain.nodesharing.model.NodeInfoContainerType
 import java.time.Instant
 
 
@@ -17,7 +18,7 @@ class NodeInfoShareFlow(val party: String,
                         var clientId: String = "",
                         var fileName: String = "nodeInfo",
                         var manipulationServiceNodeId: String = "",
-                        var containerType: com.safexain.nodesharing.model.NodeInfoContainerType = com.safexain.nodesharing.model.NodeInfoContainerType.NODE_INFO,
+                        var containerType: Int,
                         var nameItem: String = ""
 ) : FlowLogic<SignedTransaction>() {
 
@@ -61,11 +62,19 @@ class NodeInfoShareFlow(val party: String,
         // Stage 1.
         progressTracker.currentStep = com.safexain.nodesharing.flow.NodeInfoShareFlow.Companion.GENERATING_TRANSACTION
 
+        // var containerType: com.safexain.nodesharing.model.NodeInfoContainerType = com.safexain.nodesharing.model.NodeInfoContainerType.NODE_INFO,
+
+        var containerTypeItem = NodeInfoContainerType.valueOf(containerType)
+
+        if(containerTypeItem== null){
+            containerTypeItem = NodeInfoContainerType.NODE_INFO
+        }
+
         val nodeInfo = com.safexain.nodesharing.model.NodeInfoContainer(clientId,
                 fileName,
                 manipulationServiceNodeId,
                 Instant.now(),
-                containerType, nameItem)
+                containerTypeItem, nameItem)
 
         val state = com.safexain.nodesharing.state.NodeInfoShareState(me, targetParty, nodeInfo)
 

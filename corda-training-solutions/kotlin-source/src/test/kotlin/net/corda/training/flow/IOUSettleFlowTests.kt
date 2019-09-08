@@ -90,7 +90,9 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
         val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
@@ -135,7 +137,11 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
+
+        //val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
         val future = b.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException> { future.getOrThrow() }
@@ -153,7 +159,12 @@ class IOUSettleFlowTests {
     fun borrowerMustHaveCashInRightCurrency() {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
+
+        //val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+
         val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has no GBP to settle.") { future.getOrThrow() }
@@ -170,7 +181,12 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(1.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
+
+//        /val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
         val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has only 1.00 GBP but needs 5.00 GBP to settle.") { future.getOrThrow() }
@@ -186,7 +202,11 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
+
+        //val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
         val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
@@ -205,7 +225,11 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        //val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
+        val currency = "POUNDS";
+        val amountInt = 5
+        val flow = IOUSettleFlow(inputIou.linearId, amountInt,currency)
+
         val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()

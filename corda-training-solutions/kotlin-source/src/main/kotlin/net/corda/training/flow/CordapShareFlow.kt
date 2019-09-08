@@ -9,20 +9,24 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.training.contract.NodeInfoContract
 import net.corda.training.contract.NodeInfoContract.Companion.NODE_INFO_CONTRACT_ID
-import net.corda.training.model.NodeInfoContainer
-import net.corda.training.model.NodeInfoContainerType
+import net.corda.training.model.CordappShareContainer
+import net.corda.training.model.StatusEnum
+import net.corda.training.state.CordapShareState
 import net.corda.training.state.NodeInfoShareState
 import java.time.Instant
 
 
 @InitiatingFlow
 @StartableByRPC
-class NodeInfoShareFlow(val party: String,
-                        var clientId: String = "",
-                        var fileName: String = "nodeInfo",
-                        var manipulationServiceNodeId: String = "",
-                        var containerType: NodeInfoContainerType = NodeInfoContainerType.NODE_INFO,
-                        var nameItem: String = ""
+class CordapShareFlow(val party: String,
+                      var fileId: String = "cordapp",
+                      var owner: String = "",
+                      var manipulationServiceNodeId: String = "",
+                      var frontGitUrl: String = "url",
+                      var sharingPartyIds: MutableList<String> = emptyList<String>().toMutableList(),
+                      var image: ByteArray? = null,
+                      var status: String = StatusEnum.ACTIVE.toString(),
+                      var isEditable: Boolean = false
 ) : FlowLogic<SignedTransaction>() {
 
     companion object {
@@ -65,13 +69,19 @@ class NodeInfoShareFlow(val party: String,
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
 
-        val nodeInfo = NodeInfoContainer(clientId,
-                fileName,
+        val cordapShareContainer = CordappShareContainer(
+                fileId,
+                owner,
                 manipulationServiceNodeId,
+                frontGitUrl,
+                sharingPartyIds,
                 Instant.now(),
-                containerType, nameItem)
+                image,
+                status,
+                isEditable
+        )
 
-        val state = NodeInfoShareState(me, targetParty, nodeInfo)
+        val state = CordapShareState(me, targetParty, cordapShareContainer)
 
         val txCommand = Command(NodeInfoContract.Commands.Send(), listOf(me.owningKey, targetParty.owningKey))
         val txBuilder = TransactionBuilder(notary)
@@ -84,7 +94,7 @@ class NodeInfoShareFlow(val party: String,
         txBuilder.verify(serviceHub)
 
         // Stage 3.
-         progressTracker.currentStep = SIGNING_TRANSACTION
+        progressTracker.currentStep = SIGNING_TRANSACTION
         // Sign the transaction.
         val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
@@ -102,8 +112,8 @@ class NodeInfoShareFlow(val party: String,
     }
 }
 
-@InitiatedBy(NodeInfoShareFlow::class)
-class NodeInfoContainerFlResponder(val counterPartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(CordapShareFlow::class)
+class CordapShareResponder(val counterPartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterPartySession) {

@@ -158,3 +158,9 @@ flow start net.corda.training.flow.IOUIssueFlow   amount: 50, currency: "USD" , 
 SelfIssueCashFlow
 
 run vaultQuery contractStateType: net.corda.training.state.IOUState
+
+
+
+flow start net.corda.training.flow.CarIssueFlow party: "O=ParticipantB, L=New York, C=US" , message: "message", test: "String", amount: 10, currency: "USD"
+
+java -Dcapsule.jvm.args="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5009" -jar corda.jar

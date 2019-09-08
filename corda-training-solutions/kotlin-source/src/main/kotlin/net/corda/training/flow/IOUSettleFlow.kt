@@ -30,9 +30,16 @@ import java.util.*
  */
 @InitiatingFlow
 @StartableByRPC
-class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>): FlowLogic<SignedTransaction>() {
+//SkiEA before
+//class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>): FlowLogic<SignedTransaction>() {
+    class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Int ,val currency: String): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
+
+
+//        val amount = Amount( * 100, Currency.getInstance(currency))
+        val amount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
+
         // Step 1. Retrieve the IOU state from the vault.
         val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
         val iouToSettle = serviceHub.vaultService.queryBy<IOUState>(queryCriteria).states.single()

@@ -169,7 +169,7 @@ class Api(val rpcOps: CordaRPCOps) {
         val settleAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))
 
         try {
-            rpcOps.startFlow(::IOUSettleFlow, linearId, settleAmount).returnValue.get()
+            rpcOps.startFlow(::IOUSettleFlow, linearId, amount, currency).returnValue.get()
             return Response.status(Response.Status.CREATED).entity("$amount $currency paid off on IOU id $id.").build()
 
         } catch (e: Exception) {
